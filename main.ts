@@ -24,8 +24,6 @@ type ObjectFields<T> = {
   [K in keyof T as T[K] extends object ? K : never]: T[K];
 };
 
-type FormData01ObjectFields = ObjectFields<FormData01>;
-
 type SomeTypes = "BLORB" | "OTHER";
 
 export const example: Partial<FormData01> = {
@@ -55,9 +53,6 @@ interface Metadata<T> {
   value: T;
 }
 
-export function toStringMetadata(value: string): Metadata<string> {
-  return { name: value, dataType: "BLORB", value };
-}
 
 const formData01StringKeys = (
   Object.keys(formData01Shape) as (keyof FormData01)[]
