@@ -4,5 +4,10 @@ describe("formData01Shape", () => {
   it("has the correct shape", () => {
     console.log(extractStringFields(example));
     console.log(extractObjectFields(example));
+
+    console.log([
+      ...extractStringFields(example),
+      ...extractObjectFields(example),
+    ]);
   });
 });

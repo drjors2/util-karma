@@ -29,23 +29,24 @@ type FormData01ObjectFields = ObjectFields<FormData01>;
 type SomeTypes = "BLORB" | "OTHER";
 
 export const example: Partial<FormData01> = {
-  name: "John Doe",
+  // name: "John Doe",
   email: "drjors2@gmail.com",
-  obligorObligations: [
-    {
-      obligor: "Obligor 1",
-      obligation: "Obligation 1",
-    },
-    {
-      obligor: "Obligor 2",
-      obligation: "Obligation 2",
-    },
-  ],
+  // obligorObligations: [
+  //   {
+  //     obligor: "Obligor 1",
+  //     obligation: "Obligation 1",
+  //   },
+  //   {
+  //     obligor: "Obligor 2",
+  //     obligation: "Obligation 2",
+  //   },
+  // ],
   accontCredits: [
     {
       accountNumber: "Account 1",
       credit: 100,
     },
+    { accountNumber: "Account 2", credit: 200 },
   ],
 };
 
@@ -69,7 +70,11 @@ const formData01StringKeys = (
 export function extractStringFields(input: any): Metadata<string>[] {
   return formData01StringKeys.reduce((acc, key) => {
     if (typeof input[key] === "string") {
-      acc.push({ name: toFriendlyLabel(key), dataType: "BLORB", value: input[key] });
+      acc.push({
+        name: toFriendlyLabel(key),
+        dataType: "BLORB",
+        value: input[key],
+      });
     }
     return acc;
   }, [] as Metadata<string>[]);
@@ -89,24 +94,27 @@ const formData01ObjectKeys = (
     typeof formData01Shape[key] === "object" && formData01Shape[key] !== null,
 );
 
-export function extractObjectFields(input: any): Metadata<object>[] {
+export function extractObjectFields(input: any): Metadata<string>[] {
   return formData01ObjectKeys.reduce((acc, key) => {
     const val = input[key];
     if (typeof val === "object" && val !== null) {
       if (Array.isArray(val) && val.length > 0) {
         const innerKeys = Object.keys(val[0]) as (keyof (typeof val)[0])[];
         innerKeys.forEach((innerKey) => {
-          acc.push(
-            toObjectMetadata(
-              toFriendlyLabel(pluralize(String(innerKey))),
-              val.map((entry: any) => entry[innerKey]),
-            ),
-          );
+          acc.push({
+            name: toFriendlyLabel(pluralize(String(innerKey))),
+            dataType: "OTHER",
+            value: val.map((entry: any) => entry[innerKey]).join(" | "),
+          });
         });
       } else {
-        acc.push(toObjectMetadata(key, val));
+        acc.push({
+          name: toFriendlyLabel(key),
+          dataType: "OTHER",
+          value: String(val),
+        });
       }
     }
     return acc;
-  }, [] as Metadata<object>[]);
+  }, [] as Metadata<string>[]);
 }
