@@ -7,6 +7,8 @@ export function toFriendlyLabel(key: string): string {
 
 export { pluralize };
 
+const PIPE_SEPARATOR = " | ";
+
 export const formData01Shape = {
   name: "" as string,
   email: "" as string,
@@ -104,6 +106,7 @@ function objectFieldReducer(
   acc: Metadata<string>[],
   key: string,
   val: any,
+  dataType: SomeTypes = "OTHER",
 ): Metadata<string>[] {
   if (typeof val !== "object" || val === null) return acc;
   if (Array.isArray(val) && val.length > 0) {
@@ -111,14 +114,14 @@ function objectFieldReducer(
     innerKeys.forEach((innerKey) => {
       acc.push({
         name: toFriendlyLabel(pluralize(String(innerKey))),
-        dataType: "OTHER",
-        value: val.map((entry: any) => entry[innerKey]).join(" | "),
+        dataType,
+        value: val.map((entry: any) => entry[innerKey]).join(PIPE_SEPARATOR),
       });
     });
   } else {
     acc.push({
       name: toFriendlyLabel(key),
-      dataType: "OTHER",
+      dataType,
       value: String(val),
     });
   }
