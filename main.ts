@@ -2,6 +2,7 @@ export const formData01Shape = {
   name: "" as string,
   email: "" as string,
   obligorObligations: [] as { obligor: string; obligation: string }[],
+  accontCredits: [] as { account: string; credit: number }[],
 } as const;
 
 type FormData01 = typeof formData01Shape;
@@ -31,6 +32,12 @@ export const example: Partial<FormData01> = {
       obligation: "Obligation 2",
     },
   ],
+  accontCredits: [
+    {
+      account: "Account 1",
+      credit: 100,
+    },
+  ],
 };
 
 interface Metadata<T> {
@@ -43,7 +50,6 @@ export function toStringMetadata(value: string): Metadata<string> {
   return { name: value, dataType: "BLORB", value };
 }
 
-
 const formData01StringKeys = (
   Object.keys(formData01Shape) as (keyof FormData01)[]
 ).filter(
@@ -54,23 +60,19 @@ const formData01StringKeys = (
 export function extractStringFields(input: any): Metadata<string>[] {
   return formData01StringKeys.reduce((acc, key) => {
     if (typeof input[key] === "string") {
-      acc.push(toStringMetadata(input[key]));
+      acc.push({ name: key, dataType: "BLORB", value: input[key] });
     }
     return acc;
   }, [] as Metadata<string>[]);
 }
 
-export function toObjectMetadata<T extends object>(name: string, value: T): Metadata<T> {
+export function toObjectMetadata<T extends object>(
+  name: string,
+  value: T,
+): Metadata<T> {
   return { name, dataType: "OTHER", value };
 }
 
-type ObligorEntry = { obligor: string; obligation: string };
-
-type ObjectFieldsMetadata<T> = {
-  -readonly [K in keyof ObjectFields<T>]: ObjectFields<T>[K] extends ObligorEntry[]
-    ? Metadata<string[]>
-    : Metadata<ObjectFields<T>[K]>;
-};
 
 const formData01ObjectKeys = (
   Object.keys(formData01Shape) as (keyof FormData01)[]
@@ -79,20 +81,19 @@ const formData01ObjectKeys = (
     typeof formData01Shape[key] === "object" && formData01Shape[key] !== null,
 );
 
-function extractObligors(arr: ObligorEntry[]): string[] {
-  return arr.map((entry) => entry.obligor);
-}
-
-export function extractObjectFields(
-  input: any,
-): ObjectFieldsMetadata<FormData01> {
+export function extractObjectFields(input: any): Metadata<object>[] {
   return formData01ObjectKeys.reduce((acc, key) => {
     const val = input[key];
     if (typeof val === "object" && val !== null) {
-      const extracted = Array.isArray(val) ? extractObligors(val) : val;
-      const metaName = Array.isArray(val) ? "obligor" : key;
-      acc[key] = toObjectMetadata(metaName, extracted);
+      if (Array.isArray(val) && val.length > 0) {
+        const innerKeys = Object.keys(val[0]) as (keyof typeof val[0])[];
+        innerKeys.forEach((innerKey) => {
+          acc.push(toObjectMetadata(String(innerKey), val.map((entry: any) => entry[innerKey])));
+        });
+      } else {
+        acc.push(toObjectMetadata(key, val));
+      }
     }
     return acc;
-  }, {} as ObjectFieldsMetadata<FormData01>);
+  }, [] as Metadata<object>[]);
 }
