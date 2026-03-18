@@ -17,16 +17,16 @@ package "types" {
   class FormData01 {
     + name: string
     + email: string
-    + obligorObligations: ObligorEntry[]
-    + accontCredits: AccontCreditEntry[]
+    + obligorObligations: readonly ObligorEntry[]
+    + accountCredits: readonly AccountCreditEntry[]
   }
 
-  class ObligorEntry {
+  class ObligorEntry << readonly >> {
     + obligor: string
     + obligation: string
   }
 
-  class AccontCreditEntry {
+  class AccountCreditEntry << readonly >> {
     + accountNumber: string
     + credit: number
   }
@@ -38,6 +38,7 @@ package "types" {
 
   class "StringFields<T>" << (T,#FFD700) type >>
   class "ObjectFields<T>" << (T,#FFD700) type >>
+  class "FormData01ObjectFields" << (T,#FFD700) type >>
 }
 
 package "data" {
@@ -51,16 +52,18 @@ package "functions" {
   class toFriendlyLabel << (F,#FFAAAA) fn >>
   class toStringMetadata << (F,#FFAAAA) fn >>
   class toObjectMetadata << (F,#FFAAAA) fn >>
+  class objectFieldReducer << (F,#FFAAAA) fn >>
   class extractStringFields << (F,#FFAAAA) fn >>
   class extractObjectFields << (F,#FFAAAA) fn >>
 }
 
 ' type relationships
 FormData01 *-- ObligorEntry : obligorObligations
-FormData01 *-- AccontCreditEntry : accontCredits
+FormData01 *-- AccountCreditEntry : accountCredits
 "Metadata<T>" --> SomeTypes : dataType
 "StringFields<T>" ..> FormData01 : string keys of
 "ObjectFields<T>" ..> FormData01 : object keys of
+"FormData01ObjectFields" ..> "ObjectFields<T>" : alias
 
 ' data
 formData01Shape ..|> FormData01
@@ -73,13 +76,16 @@ toFriendlyLabel --> capitalCase
 toStringMetadata ..> "Metadata<T>" : Metadata<string>
 toObjectMetadata ..> "Metadata<T>" : Metadata<T>
 
+objectFieldReducer --> toFriendlyLabel
+objectFieldReducer --> pluralize
+objectFieldReducer ..> "Metadata<T>" : Metadata<string>[]
+
 extractStringFields --> formData01StringKeys
 extractStringFields --> toFriendlyLabel
 extractStringFields ..> "Metadata<T>" : Metadata<string>[]
 
 extractObjectFields --> formData01ObjectKeys
-extractObjectFields --> toFriendlyLabel
-extractObjectFields --> pluralize
+extractObjectFields --> objectFieldReducer
 extractObjectFields ..> "Metadata<T>" : Metadata<string>[]
 
 @enduml

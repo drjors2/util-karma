@@ -10,8 +10,14 @@ export { pluralize };
 export const formData01Shape = {
   name: "" as string,
   email: "" as string,
-  obligorObligations: [] as readonly { readonly obligor: string; readonly obligation: string }[],
-  accountCredits: [] as readonly { readonly accountNumber: string; readonly credit: number }[],
+  obligorObligations: [] as readonly {
+    readonly obligor: string;
+    readonly obligation: string;
+  }[],
+  accountCredits: [] as readonly {
+    readonly accountNumber: string;
+    readonly credit: number;
+  }[],
 } as const;
 
 type FormData01 = typeof formData01Shape;
@@ -29,18 +35,18 @@ type FormData01ObjectFields = ObjectFields<FormData01>;
 type SomeTypes = "BLORB" | "OTHER";
 
 export const example: Partial<FormData01> = {
-  // name: "John Doe",
+  name: "John Doe",
   email: "drjors2@gmail.com",
-  // obligorObligations: [
-  //   {
-  //     obligor: "Obligor 1",
-  //     obligation: "Obligation 1",
-  //   },
-  //   {
-  //     obligor: "Obligor 2",
-  //     obligation: "Obligation 2",
-  //   },
-  // ],
+  obligorObligations: [
+    {
+      obligor: "Obligor 1",
+      obligation: "Obligation 1",
+    },
+    {
+      obligor: "Obligor 2",
+      obligation: "Obligation 2",
+    },
+  ],
   accountCredits: [
     {
       accountNumber: "Account 1",
