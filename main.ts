@@ -10,8 +10,8 @@ export { pluralize };
 export const formData01Shape = {
   name: "" as string,
   email: "" as string,
-  obligorObligations: [] as { obligor: string; obligation: string }[],
-  accontCredits: [] as { accountNumber: string; credit: number }[],
+  obligorObligations: [] as readonly { readonly obligor: string; readonly obligation: string }[],
+  accountCredits: [] as readonly { readonly accountNumber: string; readonly credit: number }[],
 } as const;
 
 type FormData01 = typeof formData01Shape;
@@ -41,7 +41,7 @@ export const example: Partial<FormData01> = {
   //     obligation: "Obligation 2",
   //   },
   // ],
-  accontCredits: [
+  accountCredits: [
     {
       accountNumber: "Account 1",
       credit: 100,
@@ -110,7 +110,11 @@ function objectFieldReducer(
       });
     });
   } else {
-    acc.push({ name: toFriendlyLabel(key), dataType: "OTHER", value: String(val) });
+    acc.push({
+      name: toFriendlyLabel(key),
+      dataType: "OTHER",
+      value: String(val),
+    });
   }
   return acc;
 }
