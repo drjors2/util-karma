@@ -94,27 +94,30 @@ const formData01ObjectKeys = (
     typeof formData01Shape[key] === "object" && formData01Shape[key] !== null,
 );
 
+function objectFieldReducer(
+  acc: Metadata<string>[],
+  key: string,
+  val: any,
+): Metadata<string>[] {
+  if (typeof val !== "object" || val === null) return acc;
+  if (Array.isArray(val) && val.length > 0) {
+    const innerKeys = Object.keys(val[0]) as (keyof (typeof val)[0])[];
+    innerKeys.forEach((innerKey) => {
+      acc.push({
+        name: toFriendlyLabel(pluralize(String(innerKey))),
+        dataType: "OTHER",
+        value: val.map((entry: any) => entry[innerKey]).join(" | "),
+      });
+    });
+  } else {
+    acc.push({ name: toFriendlyLabel(key), dataType: "OTHER", value: String(val) });
+  }
+  return acc;
+}
+
 export function extractObjectFields(input: any): Metadata<string>[] {
-  return formData01ObjectKeys.reduce((acc, key) => {
-    const val = input[key];
-    if (typeof val === "object" && val !== null) {
-      if (Array.isArray(val) && val.length > 0) {
-        const innerKeys = Object.keys(val[0]) as (keyof (typeof val)[0])[];
-        innerKeys.forEach((innerKey) => {
-          acc.push({
-            name: toFriendlyLabel(pluralize(String(innerKey))),
-            dataType: "OTHER",
-            value: val.map((entry: any) => entry[innerKey]).join(" | "),
-          });
-        });
-      } else {
-        acc.push({
-          name: toFriendlyLabel(key),
-          dataType: "OTHER",
-          value: String(val),
-        });
-      }
-    }
-    return acc;
-  }, [] as Metadata<string>[]);
+  return formData01ObjectKeys.reduce(
+    (acc, key) => objectFieldReducer(acc, key, input[key]),
+    [] as Metadata<string>[],
+  );
 }

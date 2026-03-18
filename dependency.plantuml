@@ -1,0 +1,85 @@
+@startuml
+
+skinparam packageStyle rectangle
+
+package "npm" {
+  class pluralize << (L,#AADDFF) library >>
+  class capitalCase << (L,#AADDFF) library >>
+}
+
+package "types" {
+  class "Metadata<T>" {
+    + name: string
+    + dataType: SomeTypes
+    + value: T
+  }
+
+  class FormData01 {
+    + name: string
+    + email: string
+    + obligorObligations: ObligorEntry[]
+    + accontCredits: AccontCreditEntry[]
+  }
+
+  class ObligorEntry {
+    + obligor: string
+    + obligation: string
+  }
+
+  class AccontCreditEntry {
+    + accountNumber: string
+    + credit: number
+  }
+
+  enum SomeTypes {
+    BLORB
+    OTHER
+  }
+
+  class "StringFields<T>" << (T,#FFD700) type >>
+  class "ObjectFields<T>" << (T,#FFD700) type >>
+}
+
+package "data" {
+  class formData01Shape << (O,#AAFFAA) const >>
+  class example << (O,#AAFFAA) const >>
+  class formData01StringKeys << (O,#AAFFAA) const >>
+  class formData01ObjectKeys << (O,#AAFFAA) const >>
+}
+
+package "functions" {
+  class toFriendlyLabel << (F,#FFAAAA) fn >>
+  class toStringMetadata << (F,#FFAAAA) fn >>
+  class toObjectMetadata << (F,#FFAAAA) fn >>
+  class extractStringFields << (F,#FFAAAA) fn >>
+  class extractObjectFields << (F,#FFAAAA) fn >>
+}
+
+' type relationships
+FormData01 *-- ObligorEntry : obligorObligations
+FormData01 *-- AccontCreditEntry : accontCredits
+"Metadata<T>" --> SomeTypes : dataType
+"StringFields<T>" ..> FormData01 : string keys of
+"ObjectFields<T>" ..> FormData01 : object keys of
+
+' data
+formData01Shape ..|> FormData01
+example ..|> FormData01
+formData01StringKeys --> formData01Shape : keys + filter
+formData01ObjectKeys --> formData01Shape : keys + filter
+
+' function dependencies
+toFriendlyLabel --> capitalCase
+toStringMetadata ..> "Metadata<T>" : Metadata<string>
+toObjectMetadata ..> "Metadata<T>" : Metadata<T>
+
+extractStringFields --> formData01StringKeys
+extractStringFields --> toFriendlyLabel
+extractStringFields ..> "Metadata<T>" : Metadata<string>[]
+
+extractObjectFields --> formData01ObjectKeys
+extractObjectFields --> toFriendlyLabel
+extractObjectFields --> pluralize
+extractObjectFields ..> "Metadata<T>" : Metadata<string>[]
+
+@enduml
